@@ -1,0 +1,19 @@
+# @package _global_
+defaults:
+  - override /dataset: file
+  - override /diffusion: edm
+  - _self_
+
+name: reddit
+
+dataset:
+  name: reddit
+
+training:
+  batch_size: 1
+
+validation:
+  batch_size: 1
+
+spectral:
+  num_features: 0

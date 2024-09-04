@@ -260,7 +260,7 @@ def main(cfg: DictConfig):
 
     # keep only largest connected component for train graphs
     train_graphs = [
-        G.subgraph(max(nx.connected_components(G), key=len)) for G in train_graphs
+        G.subgraph(max(nx.connected_components(G.to_undirected()), key=len)) for G in train_graphs #connected_components doesn't exist for connected graph
     ]
 
     # Metrics

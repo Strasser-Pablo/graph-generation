@@ -73,7 +73,7 @@ class Reduction(ABC):
         offset = 2 * np.max(self.node_degree)
         T = offset * sp.sparse.eye(self.n, format="csc") - self.lap
         lk, Uk = sp.sparse.linalg.eigsh(
-            T, k=self.preserved_eig_size, which="LM", tol=1e-5
+            T, k=min(self.preserved_eig_size,T.shape[0]-1), which="LM", tol=1e-5
         )
         lk = (offset - lk)[::-1]
         Uk = Uk[:, ::-1]
