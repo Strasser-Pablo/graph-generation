@@ -9,6 +9,11 @@ from torch_geometric.typing import SparseTensor
 
 from ..reduction import ReductionFactory
 
+from tqdm import tqdm
+
+import time
+
+from itertools import islice
 
 class RandRedDataset(IterableDataset, ABC):
     def __init__(self, adjs, red_factory: ReductionFactory, spectrum_extractor):
@@ -77,17 +82,17 @@ class FiniteRandRedDataset(RandRedDataset):
 
 class InfiniteRandRedDataset(RandRedDataset):
     def __iter__(self):
-        graphs = [self.red_factory(adj.copy()) for adj in self.adjs]
+        worker_info = th.utils.data.get_worker_info()
+        graphs = [self.red_factory(adj.copy()) for adj in tqdm(islice(self.adjs,worker_info.id,None,worker_info.num_workers))]
 
         # get process id
-        worker_info = th.utils.data.get_worker_info()
         worker_id = worker_info.id if worker_info is not None else 0
         rng = np.random.default_rng(worker_id)
 
         # initialize graph_reduced_data
         graph_reduced_data = {
-            i: self.get_random_reduction_sequence(graph, rng)
-            for i, graph in enumerate(graphs)
+            i: []
+            for i, graph in tqdm(enumerate(graphs))
         }
 
         # yield random reduced graph data
