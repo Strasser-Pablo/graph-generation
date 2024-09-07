@@ -192,14 +192,30 @@ class Trainer:
                 pickle.dump(test_results, f)
 
     def run_step(self, batch):
-        batch = batch.to(self.device, non_blocking=True)
-        loss, loss_terms = self.method.get_loss(
-            batch=batch, model=self.model, sign_net=self.sign_net
-        )
+        try:
+            batch = batch.to(self.device, non_blocking=True)
+            loss, loss_terms = self.method.get_loss(
+                batch=batch, model=self.model, sign_net=self.sign_net
+            )
 
-        self.optimizer.zero_grad(set_to_none=True)
-        loss.backward()
-        self.optimizer.step()
+            self.optimizer.zero_grad(set_to_none=True)
+            loss.backward()
+            self.optimizer.step()
+        except RuntimeError as e:
+            if 'out of memory' in str(e):
+                print('| WARNING: ran out of memory, retrying on cpu')
+                batch = batch.to('cpu')
+                self.method.to('cpu')
+                self.model.to('cpu')
+                self.sign_net.to('cpu')
+                loss, loss_terms = self.method.get_loss(batch=batch, model=self.model, sign_net=self.sign_net)
+                self.optimizer.zero_grad(set_to_none=True)
+                loss.backward()
+                self.method.to(self.device)
+                self.model.to(self.device)
+                self.sign_net.to(self.device)
+                self.optimizer.step()
+                print('cpu retry successful')
 
         for model in list(self.ema_models.values()) + list(self.ema_sign_nets.values()):
             if model is not None:
