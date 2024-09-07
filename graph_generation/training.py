@@ -207,13 +207,15 @@ class Trainer:
                 batch = batch.to('cpu')
                 self.method.to('cpu')
                 self.model.to('cpu')
-                self.sign_net.to('cpu')
+                if self.sign_net is not None:
+                    self.sign_net.to('cpu')
                 loss, loss_terms = self.method.get_loss(batch=batch, model=self.model, sign_net=self.sign_net)
                 self.optimizer.zero_grad(set_to_none=True)
                 loss.backward()
                 self.method.to(self.device)
                 self.model.to(self.device)
-                self.sign_net.to(self.device)
+                if self.sign_net is not None:
+                    self.sign_net.to(self.device)
                 self.optimizer.step()
                 print('cpu retry successful')
 
