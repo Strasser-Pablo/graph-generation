@@ -1,0 +1,39 @@
+# @package _global_
+defaults:
+  - override /dataset: file
+  - override /diffusion: edm
+  - _self_
+
+name: github
+
+dataset:
+  name: github
+
+training:
+  batch_size: 1
+  log_interval: 1
+
+validation:
+  batch_size: 1
+
+spectral:
+  num_features: 0
+model:
+  name: ppgn
+  emb_features: 32
+  hidden_features: 256
+  ppgn_features: 128
+  num_layers: 5
+  dropout: 0.1
+
+sign_net:
+  hidden_features: 128
+  num_layers: 5
+
+ema:
+  betas: [0.99, 0.999, 0.9999, 1]
+  gamma: 1
+  power: 0.67
+
+debugging: True
+num_steps: 256

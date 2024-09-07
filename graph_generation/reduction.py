@@ -5,6 +5,8 @@ import numpy as np
 import scipy as sp
 from numpy.typing import NDArray
 from scipy.sparse import coo_array, csr_array, eye
+from scipy.sparse.linalg import lobpcg
+from scipy.sparse import identity
 
 real = np.floating | float
 
@@ -72,9 +74,23 @@ class Reduction(ABC):
     def get_B0(self) -> NDArray:
         offset = 2 * np.max(self.node_degree)
         T = offset * sp.sparse.eye(self.n, format="csc") - self.lap
-        lk, Uk = sp.sparse.linalg.eigsh(
-            T, k=min(self.preserved_eig_size,T.shape[0]-1), which="LM", tol=1e-5
-        )
+        try:
+            lk, Uk = sp.sparse.linalg.eigsh(
+                T, k=min(self.preserved_eig_size,T.shape[0]-1), which="LM", tol=1e-5
+            )
+        except sp.sparse.linalg.ArpackError as Error:
+            n = T.shape[0]
+            k = min(self.preserved_eig_size, n - 1)
+
+            X = np.random.rand(n, k)
+
+            M = identity(n)
+
+            lk, Uk = lobpcg(T, X, M=M, tol=1e-5)
+
+            idx = np.argsort(lk)[::-1]
+            lk = lk[idx]
+            Uk = Uk[:, idx]
         lk = (offset - lk)[::-1]
         Uk = Uk[:, ::-1]
 
