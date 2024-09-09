@@ -203,12 +203,12 @@ class Trainer:
             self.optimizer.zero_grad(set_to_none=True)
             loss.backward()
             self.optimizer.step()
-            loss_terms["OOM"] = 0
+            loss_terms["OOM"] = 0.0
         except RuntimeError as e:
             if 'out of memory' in str(e):
                 print('| WARNING: ran out of memory, skipping batch')
                 self.optimizer.zero_grad(set_to_none=True)
-                loss_terms = {'OOM': 1}
+                loss_terms = {'OOM': 1.0}
                 # print('| WARNING: ran out of memory, retrying on cpu')
                 # batch = batch.to('cpu')
                 # self.method.to('cpu')
