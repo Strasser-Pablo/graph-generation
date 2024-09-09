@@ -270,10 +270,7 @@ def main(cfg: DictConfig):
         gg.metrics.ClusteringCoefficient(),
         gg.metrics.OrbitCount(),
         gg.metrics.Spectral(),
-        gg.metrics.Wavelet(),
-        gg.metrics.Ratio(),
-        gg.metrics.Uniqueness(),
-        gg.metrics.Novelty(),
+        gg.metrics.Wavelet()
     ]
 
     if "planar" in cfg.dataset.name:
