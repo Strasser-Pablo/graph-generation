@@ -203,23 +203,27 @@ class Trainer:
             self.optimizer.zero_grad(set_to_none=True)
             loss.backward()
             self.optimizer.step()
+            loss_terms["OOM"] = 0
         except RuntimeError as e:
             if 'out of memory' in str(e):
-                print('| WARNING: ran out of memory, retrying on cpu')
-                batch = batch.to('cpu')
-                self.method.to('cpu')
-                self.model.to('cpu')
-                if self.sign_net is not None:
-                    self.sign_net.to('cpu')
-                loss, loss_terms = self.method.get_loss(batch=batch, model=self.model, sign_net=self.sign_net)
+                print('| WARNING: ran out of memory, skipping batch')
                 self.optimizer.zero_grad(set_to_none=True)
-                loss.backward()
-                self.method.to(self.device)
-                self.model.to(self.device)
-                if self.sign_net is not None:
-                    self.sign_net.to(self.device)
-                self.optimizer.step()
-                print('cpu retry successful')
+                loss_terms = {'OOM': 1}
+                # print('| WARNING: ran out of memory, retrying on cpu')
+                # batch = batch.to('cpu')
+                # self.method.to('cpu')
+                # self.model.to('cpu')
+                # if self.sign_net is not None:
+                #     self.sign_net.to('cpu')
+                # loss, loss_terms = self.method.get_loss(batch=batch, model=self.model, sign_net=self.sign_net)
+                # self.optimizer.zero_grad(set_to_none=True)
+                # loss.backward()
+                # self.method.to(self.device)
+                # self.model.to(self.device)
+                # if self.sign_net is not None:
+                #     self.sign_net.to(self.device)
+                # self.optimizer.step()
+                # print('cpu retry successful')
 
         for model in list(self.ema_models.values()) + list(self.ema_sign_nets.values()):
             if model is not None:
