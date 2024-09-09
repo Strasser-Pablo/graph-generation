@@ -156,6 +156,7 @@ class Trainer:
             ):
                 loss_terms["step_time"] = time() - step_start_time
                 loss_terms["average_node_size_per_graph"]=batch.num_nodes/batch.num_graphs
+                loss_terms["average_edge_size_per_graph"]=batch.num_edges/batch.num_graphs
                 self.log({"training": loss_terms})
 
             if self.cfg.validation.interval > 0 and (
