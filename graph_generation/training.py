@@ -155,6 +155,7 @@ class Trainer:
                 self.step % self.cfg.training.log_interval == 0 or last_step
             ):
                 loss_terms["step_time"] = time() - step_start_time
+                loss_terms["average_node_size_per_graph"]=batch.num_nodes/batch.num_graphs
                 self.log({"training": loss_terms})
 
             if self.cfg.validation.interval > 0 and (
@@ -285,7 +286,7 @@ class Trainer:
 
         results = {}
 
-        # Generate graphs
+        # Generate graphs/
         pred_graphs = []
         for batch in batches:
             pred_graphs += self.method.sample_graphs(
