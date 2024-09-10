@@ -294,11 +294,19 @@ class Trainer:
         # Generate graphs/
         pred_graphs = []
         for batch in batches:
-            pred_graphs += self.method.sample_graphs(
+            try: 
+                pred_graph=self.method.sample_graphs(
                 target_size=th.tensor(batch, device=self.device),
                 model=model,
                 sign_net=sign_net,
             )
+            pred_graphs += pred_graph
+            except RuntimeError as e:
+                if 'out of memory' in str(e):
+                    print('| WARNING: ran out of memory, skipping batch')
+                    th.cuda.empty_cache()
+                    continue
+
         results["pred_graphs"] = [pred_graphs[i] for i in pred_perm]
         if self.device == "cuda":
             th.cuda.empty_cache()
