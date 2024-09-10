@@ -209,6 +209,8 @@ class Trainer:
                 print('| WARNING: ran out of memory, skipping batch')
                 self.optimizer.zero_grad(set_to_none=True)
                 loss_terms = {'OOM': 1.0}
+                if self.device == "cuda":
+                    th.cuda.empty_cache()
                 # print('| WARNING: ran out of memory, retrying on cpu')
                 # batch = batch.to('cpu')
                 # self.method.to('cpu')
@@ -303,7 +305,8 @@ class Trainer:
             except RuntimeError as e:
                 if 'out of memory' in str(e):
                     print('| WARNING: ran out of memory, skipping batch')
-                    th.cuda.empty_cache()
+                    if self.device == "cuda":
+                        th.cuda.empty_cache()
                     continue
 
         results["pred_graphs"] = [pred_graphs[i] for i in pred_perm]
