@@ -296,18 +296,19 @@ class Trainer:
         # Generate graphs/
         pred_graphs = []
         for batch in batches:
-            try: 
-                pred_graphs += self.method.sample_graphs(
-                target_size=th.tensor(batch, device=self.device),
-                model=model,
-                sign_net=sign_net,
-            )
-            except RuntimeError as e:
-                if 'out of memory' in str(e):
-                    print('| WARNING: ran out of memory, skipping batch')
-                    if self.device == "cuda":
-                        th.cuda.empty_cache()
-                    continue
+            # try: 
+            pred_graphs += self.method.sample_graphs(
+            target_size=th.tensor(batch, device=self.device),
+            model=model,
+            sign_net=sign_net,
+        )
+            # Cannot use OOM fallback because we need to predict all graphs
+            # except RuntimeError as e:
+            #     if 'out of memory' in str(e):
+            #         print('| WARNING: ran out of memory, skipping batch')
+            #         if self.device == "cuda":
+            #             th.cuda.empty_cache()
+            #         continue
 
         results["pred_graphs"] = [pred_graphs[i] for i in pred_perm]
         if self.device == "cuda":
