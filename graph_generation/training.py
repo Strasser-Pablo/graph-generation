@@ -295,12 +295,11 @@ class Trainer:
         pred_graphs = []
         for batch in batches:
             try: 
-                pred_graph=self.method.sample_graphs(
+                pred_graphs += self.method.sample_graphs(
                 target_size=th.tensor(batch, device=self.device),
                 model=model,
                 sign_net=sign_net,
             )
-            pred_graphs += pred_graph
             except RuntimeError as e:
                 if 'out of memory' in str(e):
                     print('| WARNING: ran out of memory, skipping batch')
