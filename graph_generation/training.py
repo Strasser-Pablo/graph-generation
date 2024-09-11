@@ -84,7 +84,6 @@ class Trainer:
             print(f"Resuming training from step {self.step}")
         else:
             self.step = 0
-            self.best_validation_scores = {beta: -1 for beta in cfg.ema.betas}
             self.run_id = None
 
         # Wandb
@@ -110,7 +109,6 @@ class Trainer:
         }
         checkpoint["optimizer"] = self.optimizer.state_dict()
         checkpoint["step"] = self.step
-        checkpoint["best_validation_scores"] = self.best_validation_scores
         checkpoint["run_id"] = self.run_id
 
         checkpoint_dir = self.output_dir / "checkpoints"
@@ -136,7 +134,6 @@ class Trainer:
                 model.load_state_dict(checkpoint[name])
         self.optimizer.load_state_dict(checkpoint["optimizer"])
         self.step = checkpoint["step"]
-        self.best_validation_scores = checkpoint["best_validation_scores"]
         self.run_id = checkpoint["run_id"]
 
     def train(self):
@@ -241,22 +238,6 @@ class Trainer:
         test_results = {}
         for beta in self.cfg.ema.betas:
             val_results[f"ema_{beta}"] = self.evaluate(self.validation_graphs, beta)
-
-            # Compute validation score
-            unique_novel_valid_keys = [
-                str(m) for m in self.metrics if "UniqueNovelValid" in str(m)
-            ]
-            if len(unique_novel_valid_keys) > 0:
-                validation_score = val_results[f"ema_{beta}"][
-                    unique_novel_valid_keys[0]
-                ]
-            else:
-                validation_score = 1 / val_results[f"ema_{beta}"]["Ratio"]
-
-            # Evaluate on test set if validation score improved
-            if validation_score >= self.best_validation_scores[beta]:
-                self.best_validation_scores[beta] = validation_score
-                test_results[f"ema_{beta}"] = self.evaluate(self.test_graphs, beta)
 
         # Log results
         self.log({"validation": val_results, "test": test_results})
