@@ -172,20 +172,20 @@ class Trainer:
 
             step_start_time = time()
             batch = next(self.train_iterator)
-            with torch.profiler.profile(
-                activities=[
-                    torch.profiler.ProfilerActivity.CPU,
-                    torch.profiler.ProfilerActivity.CUDA,
-                ],
-                on_trace_ready=trace_handler,
-                record_shapes=True,
-                with_stack=True,
-                use_cuda=True,
-                profile_memory=True,
-                with_flops=True,
-                with_modules=True
-            ) as prof:
-                loss_terms = self.run_step(batch)
+            # with torch.profiler.profile(
+            #     activities=[
+            #         torch.profiler.ProfilerActivity.CPU,
+            #         torch.profiler.ProfilerActivity.CUDA,
+            #     ],
+            #     on_trace_ready=trace_handler,
+            #     record_shapes=True,
+            #     with_stack=True,
+            #     use_cuda=True,
+            #     profile_memory=True,
+            #     with_flops=True,
+            #     with_modules=True
+            # ) as prof:
+            loss_terms = self.run_step(batch)
             if self.cfg.training.log_interval > 0 and (
                 self.step % self.cfg.training.log_interval == 0 or last_step
             ):
@@ -316,20 +316,20 @@ class Trainer:
         pred_graphs = []
         for batch in batches:
             # try:
-            with torch.profiler.profile(
-                activities=[
-                    torch.profiler.ProfilerActivity.CPU,
-                    torch.profiler.ProfilerActivity.CUDA,
-                ],
-                on_trace_ready=trace_handler,
-                record_shapes=True,
-                with_stack=True,
-                use_cuda=True,
-                profile_memory=True,
-                with_flops=True,
-                with_modules=True
-            ) as prof: 
-                pred_graphs += self.method.sample_graphs(
+            # with torch.profiler.profile(
+            #     activities=[
+            #         torch.profiler.ProfilerActivity.CPU,
+            #         torch.profiler.ProfilerActivity.CUDA,
+            #     ],
+            #     on_trace_ready=trace_handler,
+            #     record_shapes=True,
+            #     with_stack=True,
+            #     use_cuda=True,
+            #     profile_memory=True,
+            #     with_flops=True,
+            #     with_modules=True
+            # ) as prof: 
+            pred_graphs += self.method.sample_graphs(
                 target_size=th.tensor(batch, device=self.device),
                 model=model,
                 sign_net=sign_net,

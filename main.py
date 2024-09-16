@@ -15,6 +15,8 @@ from torch_geometric.data import Batch
 
 import graph_generation as gg
 
+from gpu_profile import gpu_profile
+
 
 def get_expansion_items(cfg: DictConfig, train_graphs):
     # Spectral Features
@@ -322,4 +324,5 @@ def main(cfg: DictConfig):
 
 if __name__ == "__main__":
     mp.set_start_method("spawn")
+    sys.settrace(gpu_profile)
     main()
