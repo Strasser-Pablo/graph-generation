@@ -22,6 +22,9 @@ from datetime import datetime, timedelta
 
 import torch
 
+
+TIME_FORMAT_STR: str = "%b_%d_%H_%M_%S"
+
 def trace_handler(prof: torch.profiler.profile):
    # Prefix for file names.
    host_name = socket.gethostname()
