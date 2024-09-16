@@ -20,6 +20,8 @@ import socket
 
 from datetime import datetime, timedelta
 
+import torch
+
 def trace_handler(prof: torch.profiler.profile):
    # Prefix for file names.
    host_name = socket.gethostname()
