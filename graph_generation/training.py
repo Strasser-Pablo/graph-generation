@@ -16,6 +16,23 @@ import wandb
 from .metrics import Metric
 from .model import EMA, EMA1
 
+import socket
+
+from datetime import datetime, timedelta
+
+def trace_handler(prof: torch.profiler.profile):
+   # Prefix for file names.
+   host_name = socket.gethostname()
+   timestamp = datetime.now().strftime(TIME_FORMAT_STR)
+   file_prefix = f"{host_name}_{timestamp}"
+
+   # Construct the trace file.
+   prof.export_chrome_trace(f"{file_prefix}.json.gz")
+
+   # Construct the memory timeline file.
+   prof.export_memory_timeline(f"{file_prefix}.html", device="cuda:0")
+
+
 
 class Trainer:
     def __init__(
@@ -147,7 +164,19 @@ class Trainer:
 
             step_start_time = time()
             batch = next(self.train_iterator)
-            loss_terms = self.run_step(batch)
+            with torch.profiler.profile(
+                activities=[
+                    torch.profiler.ProfilerActivity.CPU,
+                    torch.profiler.ProfilerActivity.CUDA,
+                ],
+                on_trace_ready=trace_handler,
+                record_shapes=True,
+                with_stack=True,
+                use_cuda=True,
+                profile_memory=True,
+                with_flops=True,
+            ) as prof:
+                loss_terms = self.run_step(batch)
             if self.cfg.training.log_interval > 0 and (
                 self.step % self.cfg.training.log_interval == 0 or last_step
             ):
@@ -277,12 +306,24 @@ class Trainer:
         # Generate graphs/
         pred_graphs = []
         for batch in batches:
-            # try: 
-            pred_graphs += self.method.sample_graphs(
-            target_size=th.tensor(batch, device=self.device),
-            model=model,
-            sign_net=sign_net,
-        )
+            # try:
+            with torch.profiler.profile(
+                activities=[
+                    torch.profiler.ProfilerActivity.CPU,
+                    torch.profiler.ProfilerActivity.CUDA,
+                ],
+                on_trace_ready=trace_handler,
+                record_shapes=True,
+                with_stack=True,
+                use_cuda=True,
+                profile_memory=True,
+                with_flops=True,
+            ) as prof: 
+                pred_graphs += self.method.sample_graphs(
+                target_size=th.tensor(batch, device=self.device),
+                model=model,
+                sign_net=sign_net,
+                )
             # Cannot use OOM fallback because we need to predict all graphs
             # except RuntimeError as e:
             #     if 'out of memory' in str(e):
