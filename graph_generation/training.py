@@ -24,14 +24,13 @@ import torch
 
 
 TIME_FORMAT_STR: str = "%b_%d_%H_%M_%S"
-counter=0
 
 def trace_handler(prof: torch.profiler.profile):
    # Prefix for file names.
    host_name = socket.gethostname()
    timestamp = datetime.now().strftime(TIME_FORMAT_STR)
-   file_prefix = f"{host_name}_{timestamp}_{counter}"
-   counter+=1
+   file_prefix = f"{host_name}_{timestamp}_{trace_handler.counter}"
+   trace_handler.counter+=1
 
    # Construct the trace file.
    prof.export_chrome_trace(f"{file_prefix}.json.gz")
@@ -41,7 +40,7 @@ def trace_handler(prof: torch.profiler.profile):
 
    prof.export_stacks(f"{file_prefix}_stacks.txt")
 
-
+trace_handler.counter = 0
 
 class Trainer:
     def __init__(
