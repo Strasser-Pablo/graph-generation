@@ -37,7 +37,9 @@ def trace_handler(prof: torch.profiler.profile):
    prof.export_chrome_trace(f"{file_prefix}.json.gz")
 
    # Construct the memory timeline file.
-   prof.export_memory_timeline(f"{file_prefix}.html", device="cuda:0")
+   prof.export_memory_timeline(f"{file_prefix}_memory.json.gz", device="cuda:0")
+
+   prof.export_stacks(f"{file_prefix}_stacks.txt")
 
 
 
