@@ -17,6 +17,7 @@ import graph_generation as gg
 
 from gpu_profile import gpu_profile
 
+import sys
 
 def get_expansion_items(cfg: DictConfig, train_graphs):
     # Spectral Features
