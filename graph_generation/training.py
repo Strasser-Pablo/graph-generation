@@ -33,12 +33,12 @@ def trace_handler(prof: torch.profiler.profile):
    trace_handler.counter+=1
 
    # Construct the trace file.
-   prof.export_chrome_trace(f"{file_prefix}_chrome.json.gz")
+   #prof.export_chrome_trace(f"{file_prefix}_chrome.json.gz")
 
    # Construct the memory timeline file.
    prof.export_memory_timeline(f"{file_prefix}_memory.html", device="cuda:0")
 
-   prof.export_stacks(f"{file_prefix}_stacks.txt")
+   #prof.export_stacks(f"{file_prefix}_stacks.txt")
 
 trace_handler.counter = 0
 
@@ -179,11 +179,11 @@ class Trainer:
                 ],
                 on_trace_ready=trace_handler,
                 record_shapes=True,
-                with_stack=True,
+                with_stack=False,
                 use_cuda=True,
                 profile_memory=True,
-                with_flops=True,
-                with_modules=True
+                with_flops=False,
+                with_modules=False
             ) as prof:
                 loss_terms = self.run_step(batch)
             if self.cfg.training.log_interval > 0 and (
@@ -323,11 +323,11 @@ class Trainer:
                 ],
                 on_trace_ready=trace_handler,
                 record_shapes=True,
-                with_stack=True,
+                with_stack=False,
                 use_cuda=True,
                 profile_memory=True,
-                with_flops=True,
-                with_modules=True
+                with_flops=False,
+                with_modules=False
             ) as prof: 
                 pred_graphs += self.method.sample_graphs(
                 target_size=th.tensor(batch, device=self.device),
