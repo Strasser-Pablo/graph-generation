@@ -177,6 +177,7 @@ class Trainer:
                 use_cuda=True,
                 profile_memory=True,
                 with_flops=True,
+                with_modules=True
             ) as prof:
                 loss_terms = self.run_step(batch)
             if self.cfg.training.log_interval > 0 and (
@@ -320,6 +321,7 @@ class Trainer:
                 use_cuda=True,
                 profile_memory=True,
                 with_flops=True,
+                with_modules=True
             ) as prof: 
                 pred_graphs += self.method.sample_graphs(
                 target_size=th.tensor(batch, device=self.device),
